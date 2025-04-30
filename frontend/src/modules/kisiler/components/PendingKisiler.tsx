@@ -1,5 +1,5 @@
-import {Table} from "@chakra-ui/react"
-import {SkeletonText} from "../ui/skeleton"
+import {SkeletonText, Table} from "@chakra-ui/react"
+
 
 const PendingKisiler = () => (
     <Table.Root size={{base: "sm", md: "md"}}>

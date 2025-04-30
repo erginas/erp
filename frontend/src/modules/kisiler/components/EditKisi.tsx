@@ -15,16 +15,18 @@ import {KisilerService} from "../../kisiler/api/KisilerServices"
 import useCustomToast from "../../../hooks/useCustomToast"
 import {handleError} from "../../../utils"
 import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
+    DialogBody,
+    DialogCloseTrigger,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogRoot,
+    DialogTitle,
+    DialogTrigger
 } from "../../../components/ui/dialog"
 import {Field} from "../../../components/ui/field"
+
+import {Checkbox} from "../../../components/ui/checkbox"
 
 interface EditKisiProps {
     kisi: KisiPublic
@@ -33,6 +35,7 @@ interface EditKisiProps {
 interface KisiUpdateForm {
     adi: string
     soyadi?: string
+    is_active?: boolean
 }
 
 const EditKisi = ({kisi}: EditKisiProps) => {
@@ -122,6 +125,20 @@ const EditKisi = ({kisi}: EditKisiProps) => {
                                     type="text"
                                 />
                             </Field>
+
+                            <Checkbox
+                                // required
+                                // invalid={!!errors.is_active}
+                                // // errorText={errors.is_active?.message}
+                                // label="Aktif"
+                            >
+                                <Input
+                                    id="is_active"
+                                    {...register("is_active")}
+                                    placeholder="is_active"
+                                    type="checkbox"
+                                />
+                            </Checkbox>
                         </VStack>
                     </DialogBody>
 

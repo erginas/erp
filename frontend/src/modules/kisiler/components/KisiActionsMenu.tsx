@@ -1,11 +1,11 @@
 import {IconButton} from "@chakra-ui/react"
 import {BsThreeDotsVertical} from "react-icons/bs"
-import {MenuContent, MenuRoot, MenuTrigger} from "../ui/menu"
+// import {MenuContent, MenuRoot, MenuTrigger} from "@/ /ui/menu"
+import type {KisiPublic} from "@/modules/kisiler/types/KisiTypes"
 
-import type {KisiPublic} from "../../modules/kisiler/types/KisiTypes"
-
-import DeleteKisi from "../../modules/kisiler/components/DeleteKisi"
-import EditKisi from "../../modules/kisiler/components/EditKisi"
+import DeleteKisi from "@/modules/kisiler/components/DeleteKisi"
+import EditKisi from "@/modules/kisiler/components/EditKisi"
+import {MenuContent, MenuRoot, MenuTrigger} from "@/components/ui/menu.tsx";
 
 interface KisiActionsMenuProps {
     kisi: KisiPublic

@@ -4,21 +4,22 @@ import {type SubmitHandler, useForm} from "react-hook-form"
 import {Button, DialogActionTrigger, DialogTitle, Input, Text, VStack,} from "@chakra-ui/react"
 import {useState} from "react"
 import {FaPlus} from "react-icons/fa"
-
-import {type ItemCreate, ItemsService} from "@/client"
+import {KisilerService} from "@/modules/kisiler/api/KisilerServices"
+import {type KisiCreate} from "@/modules/kisiler/types/KisiTypes"
 import type {ApiError} from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import {handleError} from "@/utils"
 import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTrigger,
-} from "../../../components/ui/dialog"
-import {Field} from "../../../components/ui/field"
+    DialogBody,
+    DialogCloseTrigger,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogRoot,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {Field} from "@/components/ui/field"
+
 
 const AddItem = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -29,20 +30,21 @@ const AddItem = () => {
         handleSubmit,
         reset,
         formState: {errors, isValid, isSubmitting},
-    } = useForm<ItemCreate>({
+    } = useForm<KisiCreate>({
         mode: "onBlur",
         criteriaMode: "all",
         defaultValues: {
-            title: "",
-            description: "",
+            kimlik_no: 0,
+            adi: "",
+            soyadi: "",
         },
     })
 
     const mutation = useMutation({
-        mutationFn: (data: ItemCreate) =>
-            ItemsService.createItem({requestBody: data}),
+        mutationFn: (data: KisiCreate) =>
+            KisilerService.createKisi({requestBody: data}),
         onSuccess: () => {
-            showSuccessToast("Item created successfully.")
+            showSuccessToast("Kişi Oluşturuldu.")
             reset()
             setIsOpen(false)
         },
@@ -50,11 +52,11 @@ const AddItem = () => {
             handleError(err)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({queryKey: ["items"]})
+            queryClient.invalidateQueries({queryKey: ["kisiler"]})
         },
     })
 
-    const onSubmit: SubmitHandler<ItemCreate> = (data) => {
+    const onSubmit: SubmitHandler<KisiCreate> = (data) => {
         mutation.mutate(data)
     }
 
@@ -68,42 +70,60 @@ const AddItem = () => {
             <DialogTrigger asChild>
                 <Button value="add-item" my={4}>
                     <FaPlus fontSize="16px"/>
-                    Add Item
+                    Kişi ekle
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogHeader>
-                        <DialogTitle>Add Item</DialogTitle>
+                        <DialogTitle>Kişi Ekle</DialogTitle>
                     </DialogHeader>
                     <DialogBody>
-                        <Text mb={4}>Fill in the details to add a new item.</Text>
+                        <Text mb={4}>Lütfen Bilgileri Doldurun.</Text>
                         <VStack gap={4}>
+
                             <Field
                                 required
-                                invalid={!!errors.title}
-                                errorText={errors.title?.message}
-                                label="Title"
+                                invalid={!!errors.kimlik_no}
+                                errorText={errors.kimlik_no?.message}
+                                label="Kimlik No"
                             >
                                 <Input
-                                    id="title"
-                                    {...register("title", {
-                                        required: "Title is required.",
+                                    id="kimlik_no"
+                                    {...register("kimlik_no", {
+                                        required: "Kimlik Bilgisi zorunlu lütfen girin.",
                                     })}
-                                    placeholder="Title"
+                                    placeholder="Kimlik No"
+                                    type="text"
+                                />
+                            </Field>
+
+
+                            <Field
+                                required
+                                invalid={!!errors.adi}
+                                errorText={errors.adi?.message}
+                                label="Adı"
+                            >
+                                <Input
+                                    id="adi"
+                                    {...register("adi", {
+                                        required: "İsim bilgisi zorunlu lütfen girin.",
+                                    })}
+                                    placeholder="Adı"
                                     type="text"
                                 />
                             </Field>
 
                             <Field
-                                invalid={!!errors.description}
-                                errorText={errors.description?.message}
-                                label="Description"
+                                invalid={!!errors.soyadi}
+                                errorText={errors.soyadi?.message}
+                                label="soyadi"
                             >
                                 <Input
-                                    id="description"
-                                    {...register("description")}
-                                    placeholder="Description"
+                                    id="soyadi"
+                                    {...register("soyadi")}
+                                    placeholder="Soaydi"
                                     type="text"
                                 />
                             </Field>

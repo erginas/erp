@@ -26,11 +26,12 @@ def list_kisiler(
         session: Session,
         skip: int = 0,
         limit: int = 100,
-        is_active: Optional[int] = 1,
+        is_active: Optional[int] = None,
         kimlik_no: Optional[int] = None,
         adi: Optional[str] = None,
         soyadi: Optional[str] = None,
         cep_tel: Optional[str] = None,
+
 ) -> List[Kisi]:
     statement = select(Kisi)
 

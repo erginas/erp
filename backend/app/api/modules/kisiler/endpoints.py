@@ -29,7 +29,7 @@ def create_kisi(
 def list_kisiler(
         skip: int = 0,
         limit: int = 100,
-        is_aktive: Optional[int] = 1,
+        is_aktive: Optional[int] = None,
         kimlik_no: Optional[int] = None,
         adi: Optional[str] = None,
         soyadi: Optional[str] = None,
