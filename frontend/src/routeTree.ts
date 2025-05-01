@@ -1,5 +1,5 @@
 import {rootRoute} from '@/routes/__root';
-import {layoutRoute} from '@/routes/_layout';
+import {layoutRoute} from '@/app/_layout.tsx';
 import {recoverPasswordRoute} from '@/routes/recover-password';
 import {resetPasswordRoute} from '@/routes/reset-password';
 import {signupRoute} from '@/routes/signup';
@@ -8,14 +8,16 @@ import {adminRoute} from '@/routes/_layout/admin';
 // import {itemsRoute} from '@/routes/_layout/items';
 import {settingsRoute} from '@/routes/_layout/settings';
 
-import {loginRoute} from "@/modules/auth/router/loginRoute";
-import {kisilerRoute} from "@/modules/kisiler/router/kisiRouter.tsx";
+import {loginRoute} from "@/features/auth/router/loginRoute";
+import {kisilerRoute} from "@/features/kisiler/router/kisiRouter.tsx";
+import {} from "@/features/hr/pages/KisiListPage"
 
 export const routeTree = rootRoute.addChildren([
     layoutRoute.addChildren([
         dashboardRoute,
         adminRoute,
         // itemsRoute,
+
         settingsRoute,
         kisilerRoute,
     ]),

@@ -1,14 +1,14 @@
 // src/routes/_layout/settings.tsx
 
 import {createRoute, redirect} from "@tanstack/react-router";
-import {layoutRoute} from "../_layout";
+import {layoutRoute} from "../../app/_layout.tsx";
 // import {
 //   Container,
 //   Heading,
 //   Tabs,
 // } from "@chakra-ui/react";
 // Component’i ayrı dosyada tutun; burada yalnızca route tanımı var:
-import SettingsPage from "@/modules/auth/components/SettingsPage";
+import SettingsPage from "@/features/auth/components/SettingsPage";
 
 // Basit bir doğrulama fonksiyonu:
 function isLoggedInSync(): boolean {

@@ -1,8 +1,8 @@
 // src/routes/recover-password.tsx
 import {createRoute, redirect} from "@tanstack/react-router";
 import {rootRoute} from "@/routes/__root";
-import ResetPasswordPage from "../modules/auth/components/ResetPasswordPage";
-import {isLoggedIn} from "@/hooks/useAuth";
+import ResetPasswordPage from "@/features/auth/components/ResetPasswordPage";
+import {isLoggedIn} from "@/shared/hooks/useAuth";
 
 export const resetPasswordRoute = createRoute({
     path: "/reset-password",

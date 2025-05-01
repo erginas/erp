@@ -2,8 +2,8 @@
 
 import {createRoute, redirect} from "@tanstack/react-router";
 import {rootRoute} from "./__root";
-import SignUpPage from "@/modules/auth/components/SignUpPage"; // Bu dosyayı da oluşturmalısınız
-import {isLoggedIn} from "@/hooks/useAuth";
+import SignUpPage from "@/features/auth/components/SignUpPage"; // Bu dosyayı da oluşturmalısınız
+import {isLoggedIn} from "@/shared/hooks/useAuth";
 
 export const signupRoute = createRoute({
     path: "/signup",

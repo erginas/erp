@@ -1,7 +1,7 @@
 // src/routes/login.tsx
 import {createRoute} from '@tanstack/react-router';
 import {rootRoute} from './__root';
-import {LoginPage} from '@/modules/auth/components/LoginPage';
+import {LoginPage} from '@/features/auth/components/LoginPage';
 
 export const loginRoute = createRoute({
     path: '/login',

@@ -1,8 +1,8 @@
 // src/routes/_layout/admin.tsx
 import {createRoute, redirect} from "@tanstack/react-router";
-import {layoutRoute} from "../_layout";
-import AdminPage from "@/modules/auth/components/AdminPage";
-import {isLoggedIn} from "@/hooks/useAuth";
+import {layoutRoute} from "../../app/_layout.tsx";
+import AdminPage from "@/features/auth/components/AdminPage";
+import {isLoggedIn} from "@/shared/hooks/useAuth";
 import {z} from "zod";
 
 const usersSearchSchema = z.object({page: z.number().catch(1)});

@@ -5,7 +5,7 @@ import {MutationCache, QueryCache, QueryClient, QueryClientProvider,} from "@tan
 import {createRouter, RouterProvider} from "@tanstack/react-router";
 
 import {ApiError, OpenAPI} from "./client";
-import {CustomProvider} from "./components/ui/provider";
+import {CustomProvider} from "@/shared/components/ui/provider";
 import {routeTree} from "./routeTree"; // ← Manuel routeTree
 // import { routeTree } from "./routeTree.gen"; // artık kullanılmıyor
 
