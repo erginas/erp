@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/ven" />
       <excludeFolder url="file://$MODULE_DIR$/xApi/ven" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (erp)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (erp-mgp)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

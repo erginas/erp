@@ -1,12 +1,12 @@
 // src/main.tsx
-import {StrictMode} from "react";
+import React from 'react'
 import ReactDOM from "react-dom/client";
 import {MutationCache, QueryCache, QueryClient, QueryClientProvider,} from "@tanstack/react-query";
 import {createRouter, RouterProvider} from "@tanstack/react-router";
 
 import {ApiError, OpenAPI} from "./client";
-import {CustomProvider} from "@/shared/components/ui/provider";
-import {routeTree} from "./routeTree"; // ← Manuel routeTree
+import {CustomProvider} from "@/shared/components/ui/provider.tsx";
+import {routeTree} from "@/routes/routeTree"; // ← Manuel routeTree
 // import { routeTree } from "./routeTree.gen"; // artık kullanılmıyor
 
 // OpenAPI konfigurasyonu
@@ -30,7 +30,8 @@ const queryClient = new QueryClient({
 });
 
 // TanStack Router oluşturulması
-const router = createRouter({routeTree});
+// const router = createRouter({routeTree: routeTree});
+const router = createRouter({routeTree})
 
 declare module "@tanstack/react-router" {
     interface Register {
@@ -39,16 +40,15 @@ declare module "@tanstack/react-router" {
 }
 
 // Uygulamanın render edilmesi
-ReactDOM.createRoot(document.getElementById("root")!).render(
-    <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
         <CustomProvider>
             <QueryClientProvider client={queryClient}>
                 <RouterProvider router={router}/>
             </QueryClientProvider>
         </CustomProvider>
-    </StrictMode>
-);
-
+    </React.StrictMode>
+)
 
 // import {MutationCache, QueryCache, QueryClient, QueryClientProvider,} from "@tanstack/react-query"
 // import {createRouter, RouterProvider} from "@tanstack/react-router"

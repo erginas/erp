@@ -10,9 +10,8 @@ import {settingsRoute} from '@/routes/_layout/settings';
 
 import {loginRoute} from "@/features/auth/router/loginRoute";
 import {kisilerRoute} from "@/features/kisiler/router/kisiRouter.tsx";
-import {} from "@/features/hr/pages/KisiListPage"
 
-export const routeTree = rootRoute.addChildren([
+export const routeTree_ol = rootRoute.addChildren([
     layoutRoute.addChildren([
         dashboardRoute,
         adminRoute,

@@ -5,12 +5,11 @@ import React from "react";
 import {Container, Flex, Heading, Table,} from "@chakra-ui/react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {useNavigate} from "@tanstack/react-router"; // ← global hook
-import {adminRoute} from "@/routes/_layout/admin.tsx"; // route id’si için
 import type {UserPublic} from "@/client";
 import {UsersService} from "@/client";
-import AddUser from "@/features/Admin/components/AddUser.tsx";
-import PendingUsers from "@/features/Pending/PendingUsers.tsx";
-import {UserActionsMenu} from "@/shared/components/Common/UserActionsMenu.tsx";
+import AddUser from "@/features/Admin/components/AddUser";
+import PendingUsers from "@/features/Pending/PendingUsers";
+import {UserActionsMenu} from "@/shared/components/Common/UserActionsMenu";
 import {
     PaginationItems,
     PaginationNextTrigger,
@@ -18,6 +17,7 @@ import {
     PaginationRoot,
 } from "@/shared/components/ui/pagination.tsx";
 import {z} from "zod";
+import {adminRoute} from "@/features/Admin/router/admin.tsx";
 
 const PER_PAGE = 5;
 // @ts-ignore

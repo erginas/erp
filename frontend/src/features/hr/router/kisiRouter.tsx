@@ -5,9 +5,10 @@ import {Container, Heading} from "@chakra-ui/react";
 import {createRoute} from "@tanstack/react-router";
 import {z} from "zod";
 
-import {layoutRoute} from "@/app/_layout.tsx";
-import AddKisi from "../components/AddKisi.tsx";
+
 import KisilerTable from "@/features/kisiler/components/KisilerTable.tsx";
+import AddKisi from "@/features/kisiler/components/AddKisi.tsx";
+import {layoutRoute} from "@/routes/routeTree.tsx";
 
 // 1️⃣ Query string validasyonu için Zod şeması
 const kisiSearchSchema = z.object({

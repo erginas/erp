@@ -1,33 +1,24 @@
 // src/routes/_layout/settings.tsx
-
 import {createRoute, redirect} from "@tanstack/react-router";
-import {layoutRoute} from "../../app/_layout.tsx";
-// import {
-//   Container,
-//   Heading,
-//   Tabs,
-// } from "@chakra-ui/react";
-// Component’i ayrı dosyada tutun; burada yalnızca route tanımı var:
 import SettingsPage from "@/features/auth/components/SettingsPage";
+import {layoutRoute} from "@/routes/routeTree.tsx";
 
-// Basit bir doğrulama fonksiyonu:
+// Basit bir doğrulama fonksiyonu
 function isLoggedInSync(): boolean {
-    // Örnek: token’ı localStorage’dan oku
     return Boolean(localStorage.getItem("access_token"));
 }
 
+// Route tanımı
 export const settingsRoute = createRoute({
-    path: "settings",                // Layout altında "/settings"
+    path: "settings", // Sadece path kullanıldı
     getParentRoute: () => layoutRoute,
     component: SettingsPage,
     beforeLoad: async () => {
         if (!isLoggedInSync()) {
-            // Login değilse /login’e yönlendir
             throw redirect({to: "/login"});
         }
     },
 });
-
 
 // import {Container, Heading, Tabs} from "@chakra-ui/react"
 // import {createFileRoute} from "@tanstack/react-router"

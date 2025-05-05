@@ -28,7 +28,7 @@ def create_kisi(
 @router.get("/", response_model=List[KisiRead], status_code=status.HTTP_200_OK)
 def list_kisiler(
         skip: int = 0,
-        limit: int = 100,
+        limit: int = None,
         is_aktive: Optional[int] = None,
         kimlik_no: Optional[int] = None,
         adi: Optional[str] = None,

@@ -1,11 +1,10 @@
-// src/routes/_layout.tsx
-import {createRoute, Outlet} from '@tanstack/react-router';
-import {rootRoute} from '../routes/__root.tsx';
-import Navbar from '@/shared/components/Common/Navbar.tsx';
-import Sidebar from '@/shared/components/Common/Sidebar.tsx';
-import {Flex} from '@chakra-ui/react';
+// src/app/_layout.tsx
+import {Flex} from '@chakra-ui/react'
+import {Outlet} from '@tanstack/react-router'
+import Navbar from "@/shared/components/Common/Navbar.tsx";
+import {Sidebar} from "lucide-react";
 
-export function AdminLayout() {
+export default function Layout() {
     return (
         <Flex direction="column" h="100vh">
             <Navbar/>
@@ -16,14 +15,8 @@ export function AdminLayout() {
                 </Flex>
             </Flex>
         </Flex>
-    );
+    )
 }
-
-export const layoutRoute = createRoute({
-    id: '_layout',
-    getParentRoute: () => rootRoute,
-    component: AdminLayout,
-});
 
 
 // import {Flex} from "@chakra-ui/react"

@@ -3,7 +3,8 @@ import {createRoute, redirect} from "@tanstack/react-router";
 import AdminPage from "@/features/auth/components/AdminPage";
 import {isLoggedIn} from "@/shared/hooks/useAuth";
 import {z} from "zod";
-import {layoutRoute} from "@/routes/routeTree";
+import {layoutRoute} from "routes/routeTree.tsx"
+
 
 const usersSearchSchema = z.object({page: z.number().catch(1)});
 

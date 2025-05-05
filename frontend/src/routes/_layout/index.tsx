@@ -1,6 +1,6 @@
 // src/routes/_layout/index.tsx
 import {createRoute} from "@tanstack/react-router";
-import {layoutRoute} from "../../app/_layout.tsx";
+import {layoutRoute} from "../../app/_layout";
 import Dashboard from "@/features/dashboard/Dashboard"; // şimdi bu import çalışacak
 
 export const dashboardRoute = createRoute({
