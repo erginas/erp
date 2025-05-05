@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Kisi, KisiCreate } from '../types/kisi';
 import { Input } from '../../../shared/components/ui/Input';
 import { Select } from '../../../shared/components/ui/select';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '../../../shared/components/ui/Button.tsx';
 
 interface Props {
   initialData?: Kisi;

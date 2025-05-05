@@ -2,7 +2,7 @@
 import {Flex, Input, Text} from "@chakra-ui/react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Link as RouterLink} from "@tanstack/react-router";
-import {Button} from "@/shared/components/ui/button.tsx";
+import {Button} from "@/shared/components/ui/Button.tsx";
 import useAuth from "@/shared/hooks/useAuth.ts";
 
 interface SignUpData {

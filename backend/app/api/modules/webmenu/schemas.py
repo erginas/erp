@@ -19,7 +19,7 @@ class WebMenuCreate(WebMenuBase):
 
 class WebMenuRead(WebMenuBase):
     id: int
-    children: Optional[List["WebMenuRead"]] = []
+    # children: Optional[List["WebMenuRead"]] = []
 
     class Config:
         orm_mode = True

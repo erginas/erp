@@ -6,7 +6,7 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {FiLock, FiMail} from "react-icons/fi";
 import {createFileRoute, redirect, useNavigate} from "@tanstack/react-router";
 
-import {Button} from "@/shared/components/ui/button.tsx";
+import {Button} from "@/shared/components/ui/Button.tsx";
 import {Field} from "@/shared/components/ui/field.tsx";
 import {InputGroup} from "@/shared/components/ui/input-group.tsx";
 import useAuth, {isLoggedIn} from "@/shared/hooks/useAuth.ts";

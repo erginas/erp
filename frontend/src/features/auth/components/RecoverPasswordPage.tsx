@@ -4,7 +4,7 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {FiMail} from "react-icons/fi";
 
 import {type ApiError, LoginService} from "@/client";
-import {Button} from "@/shared/components/ui/button.tsx";
+import {Button} from "@/shared/components/ui/Button.tsx";
 import {Field} from "@/shared/components/ui/field.tsx";
 import {InputGroup} from "@/shared/components/ui/input-group.tsx";
 import useCustomToast from "@/shared/hooks/useCustomToast.ts";

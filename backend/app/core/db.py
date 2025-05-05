@@ -13,8 +13,11 @@ engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, echo=True)
 
 # Dependency injection için gerekli
 def get_session():
-    with Session(engine) as session:
+    session = Session(engine)
+    try:
         yield session
+    finally:
+        session.close()
 
 
 def init_db(session: Session) -> None:
