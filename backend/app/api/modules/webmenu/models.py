@@ -5,6 +5,8 @@ from sqlmodel import Field, SQLModel
 
 
 class WebMenu(SQLModel, table=True):
+    __tablename__ = "web_menu"  # ✅ Oracle’daki tablo adıyla birebir eşleşti
+
     id: Optional[int] = Field(default=None, primary_key=True)
     label: str = Field(max_length=100)
     to_path: str = Field(max_length=200)

@@ -4,10 +4,8 @@ from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import SessionDep
-from app.api.modules.webmenu import crud
-from app.api.modules.webmenu.models import WebMenu
-from app.api.modules.webmenu.schemas import WebMenuRead
+from app.api.deps import SessionDep, get_db
+from app.api.modules.webmenu import crud, schemas
 
 router = APIRouter(
     prefix="/menu",
@@ -16,10 +14,9 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[WebMenuRead])
-def get_menu_list(role: str = Query(...), session: Session = Depends(SessionDep)) -> List[WebMenu]:
-    """
-    Belirli role sahip kullanıcılara göre menü listesini döner.
-    """
-    menus = crud.get_menus_by_role(session=session, role=role)
-    return menus
+@router.get("/", response_model=List[schemas.WebMenuRead])
+def get_menus(
+        role: str = Query(...),
+        session: Session = Depends(get_db)
+):
+    return crud.get_menus_by_role(session=session, role=role)

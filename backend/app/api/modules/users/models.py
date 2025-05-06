@@ -1,29 +1,34 @@
 from typing import Optional
 
 from pydantic import EmailStr
+from sqlalchemy import Column, String
 from sqlmodel import SQLModel, Field
 
 
 class Users(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    __tablename__ = "USERS"  # Oracle'da büyük harf kullanılıyor olabilir
+
+    id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, max_length=255)
     hashed_password: str
-    full_name: Optional[str] = Field(default=None, max_length=255)
+    full_name: Optional[str] = None
     is_active: Optional[bool] = Field(default=True)
     is_superuser: Optional[bool] = Field(default=False)
     is_staff: Optional[bool] = Field(default=False)
+    role: Optional[str] = Field(
+        sa_column=Column("ROLE", String(50), nullable=True)
+    )
 
 
 # Shared properties
+
+
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
-
-
-from pydantic import EmailStr
-from sqlmodel import Field, SQLModel
+    role: Optional[str] = Field(default="viewer", max_length=50)  # ✅
 
 
 # Properties to receive via API on creation
@@ -77,6 +82,7 @@ class Token(SQLModel):
 # Contents of JWT token
 class TokenPayload(SQLModel):
     sub: str | None = None
+    role: str | None = None  # ✅ Eklendi
 
 
 class NewPassword(SQLModel):
