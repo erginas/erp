@@ -9,6 +9,9 @@ from app.api.routes import utils
 
 api_router = APIRouter()
 
+# api_router.include_router(personel_router.router, prefix='/personel', tags=['İnsan Kaynakları'])
+# api_router.include_router(personel_dashboard_router.router, prefix='/personel/dashboard',
+#                           tags=['İnsan Kaynakları bilgilendirme'])
 api_router.include_router(login.router, tags=["login"])
 api_router.include_router(private.router, prefix="/private", tags=["private"])
 api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
