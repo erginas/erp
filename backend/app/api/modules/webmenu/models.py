@@ -1,20 +1,16 @@
-from typing import Optional, List
+# app/api/modules/webmenu/models.py
+from typing import Optional
 
-from pydantic import Field
-from sqlmodel import Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class WebMenu(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)  # ✅ MUTLAKA OLMALI
+    __tablename__ = "web_menu"  # ✅ Oracle’daki tablo adıyla birebir eşleşti
+
+    id: Optional[int] = Field(default=None, primary_key=True)
     label: str = Field(max_length=100)
     to_path: str = Field(max_length=200)
     module_key: Optional[str] = Field(default=None, max_length=50)
     parent_id: Optional[int] = Field(default=None, foreign_key="web_menu.id")
     icon_name: Optional[str] = Field(default=None, max_length=50)
-    roles: Optional[str] = Field(default=None, max_length=200)
-
-    # 👇 Yeni alan: recursive ilişki
-    children: List["WebMenu"] = Relationship(back_populates="parent")
-
-    # 👇 opsiyonel: eğer ters ilişki de istenirse
-    parent: Optional["WebMenu"] = Relationship(back_populates="children")
+    roles: Optional[str] = Field(default=None, max_length=200)  # CSV format

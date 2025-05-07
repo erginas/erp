@@ -1,19 +1,22 @@
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.orm import Session
+# app/api/modules/webmenu/endpoints.py
 from typing import List
 
-from app.api.modules.webmenu.schemas import WebMenuRead
-from app.api.modules.webmenu.crud import get_menus_by_role
-from app.core.db import get_session
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+
+from app.api.deps import SessionDep, get_db
+from app.api.modules.webmenu import crud, schemas
 
 router = APIRouter(
     prefix="/menu",
-    tags=["WebMenu"]
+    tags=["WebMenu"],
+    responses={404: {"description": "Menu not found"}},
 )
 
-@router.get("/", response_model=List[WebMenuRead])
-def list_menu(
-    role: str = Query(..., description="Kullanıcının rolü"),  # ✅ Burada önemli
-    session: Session = Depends(get_session),
+
+@router.get("/", response_model=List[schemas.WebMenuRead])
+def get_menus(
+        role: str = Query(...),
+        session: Session = Depends(get_db)
 ):
-    return get_menus_by_role(session=session, role=role)
+    return crud.get_menus_by_role(session=session, role=role)
