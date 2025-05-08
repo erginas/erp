@@ -1,22 +1,21 @@
-from typing import Optional
-
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlmodel import select, or_, col
+from typing import Optional
 
 from .models import Personel
 from .schemas import PersonelCreate, PersonelUpdate
 
 
 def get_filtered_personel_list(
-    db: Session,
-    page: int = 0,
-    size: int = 20,
-    search: Optional[str] = None,
-    durum: Optional[str] = None,
-    sort_by: Optional[str] = None,
-    sort_order: Optional[str] = "asc",
-    filters: dict = {}
+        db: Session,
+        page: int = 0,
+        size: int = 20,
+        search: Optional[str] = None,
+        durum: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
+        filters: dict = {}
 ):
     query = select(Personel)
 
@@ -52,12 +51,11 @@ def get_filtered_personel_list(
     return {"items": results, "total": total}
 
 
-
 def get_personel(db: Session, personel_id: int):
     return db.query(Personel).filter(Personel.id == personel_id).first()
 
 
-def get_personel_list(db: Session, skip: int = 0, limit: int = 100):
+def get_personel_list(db: Session, skip: int = 0, limit: int = 1000):
     return db.query(Personel).offset(skip).limit(limit).all()
 
 

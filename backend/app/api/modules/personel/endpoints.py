@@ -1,29 +1,29 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
-from typing import Optional, Annotated
 
 from app.api.deps import get_db
 from app.api.modules.personel.crud import create_personel, get_personel, get_personel_list, update_personel, \
     delete_personel
-from app.api.modules.personel.schemas import PersonelRead, PersonelCreate, PersonelUpdate
 from app.api.modules.personel.crud import get_filtered_personel_list
+from app.api.modules.personel.schemas import PersonelRead, PersonelCreate, PersonelUpdate
 
 router = APIRouter(prefix="/personel", tags=["Personel"])
 
 
 @router.get("/", response_model=dict)
 def read_filtered_personel_list(
-    page: int = Query(0),
-    size: int = Query(20),
-    search: Optional[str] = Query(None),
-    durum: Optional[str] = Query(None),
-    sortBy: Optional[str] = Query(None),
-    sortOrder: Optional[str] = Query("asc"),
-    birim_id: Optional[int] = Query(None),
-    unvan_id: Optional[int] = Query(None),
-    brans_id: Optional[int] = Query(None),
-    db: Session = Depends(get_db)
+        page: int = Query(0),
+        size: int = Query(20),
+        search: Optional[str] = Query(None),
+        durum: Optional[str] = Query(None),
+        sortBy: Optional[str] = Query(None),
+        sortOrder: Optional[str] = Query("asc"),
+        birim_id: Optional[int] = Query(None),
+        unvan_id: Optional[int] = Query(None),
+        brans_id: Optional[int] = Query(None),
+        db: Session = Depends(get_db)
 ):
     filters = {}
     if birim_id is not None:
@@ -43,6 +43,37 @@ def read_filtered_personel_list(
         sort_order=sortOrder,
         filters=filters
     )
+
+
+@router.get("/export", response_model=list[PersonelRead])
+def export_filtered_personel(
+        search: Optional[str] = Query(default=None),
+        durum: Optional[str] = Query(default=None),
+        birim_id: Optional[int] = Query(default=None),
+        unvan_id: Optional[int] = Query(default=None),
+        brans_id: Optional[int] = Query(default=None),
+        db: Session = Depends(get_db)
+):
+    filters = {}
+    if birim_id is not None:
+        filters["birim_id"] = birim_id
+    if unvan_id is not None:
+        filters["unvan_id"] = unvan_id
+    if brans_id is not None:
+        filters["brans_id"] = brans_id
+
+    result = get_filtered_personel_list(
+        db=db,
+        page=0,
+        size=10_000,
+        search=search,
+        durum=durum,
+        sort_by=None,
+        sort_order="asc",
+        filters=filters
+    )
+
+    return result["items"]
 
 
 @router.get("/", response_model=list[PersonelRead])

@@ -1,6 +1,4 @@
 import warnings
-from typing import Annotated, Any, Literal
-
 from pydantic import (
     AnyUrl,
     BeforeValidator,
@@ -11,6 +9,7 @@ from pydantic import (
 )
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Annotated, Any, Literal
 from typing_extensions import Self
 
 
@@ -63,10 +62,10 @@ class Settings(BaseSettings):
     SENTRY_DSN: HttpUrl | None = None
 
     # Oracle database settings
-    ORACLE_SERVER: str = "cloud.tipsan.com"
-    # ORACLE_SERVER: str = "192.168.0.253"
-    ORACLE_PORT: int = 3521
-    # ORACLE_PORT: int = 1521
+    # ORACLE_SERVER: str = "cloud.tipsan.com"
+    ORACLE_SERVER: str = "192.168.0.253"
+    # ORACLE_PORT: int = 3521
+    ORACLE_PORT: int = 1521
     ORACLE_USER: str = "mgp"
     ORACLE_PASSWORD: str = "mgp"
     ORACLE_DB: str = "tpsn"  # SID veya Service Name
