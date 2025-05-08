@@ -290,7 +290,7 @@ SELECT
          )
       || ']'
     FROM p_data d
-    WHERE TO_CHAR(d.dogum_tarihi,'MM-DD') = TO_CHAR(:today,'MM-DD')
+    WHERE TO_CHAR(d.dogum_tarihi,'MM-DD') = TO_CHAR(:today,'MM-DD') and d.cikis_tarihi is null
   ) AS dogum_gunu_olanlar,
   -- D) Emeklilik adayları
   (
