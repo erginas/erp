@@ -1,81 +1,82 @@
-from typing import List, Optional
+# crud.py
+from math import ceil
 
+from sqlalchemy import func
 from sqlmodel import Session, select
 
-from app.api.modules.kisiler.models import Kisi
-from app.api.modules.kisiler.schemas import KisiCreate, KisiUpdate
+from .models import Kisi
+from .schemas import KisiCreate, KisiUpdate, KisiFilter, Pagination
 
 
-# 🚀 Yeni kişi oluşturma
-def create_kisi(session: Session, kisi_in: KisiCreate) -> Kisi:
-    # Yeni kimlik_no oluştur (manuel giriyorsan aşağıdaki kısmı kaldırabilirsin)
-    kisi = Kisi(**kisi_in.model_dump())
-    session.add(kisi)
-    session.commit()
-    session.refresh(kisi)
-    return kisi
+def get_paginated_kisiler(session: Session, filters: KisiFilter, page: int = 1, size: int = 100) -> Pagination[Kisi]:
+    # Temel sorgu
+    query = select(Kisi)
+
+    # Filtre uygulama
+    if filters.adi:
+        query = query.where(Kisi.ADI.ilike(f"%{filters.adi}%"))
+    if filters.soyadi:
+        query = query.where(Kisi.SOYADI.ilike(f"%{filters.soyadi}%"))
+    if filters.kimlik_no:
+        query = query.where(Kisi.KIMLIK_NO == filters.kimlik_no)
+    if filters.birim_no:
+        query = query.where(Kisi.BIRIM_NO == filters.birim_no)
+    if filters.isten_cikis_t is not None:
+        if filters.isten_cikis_t:
+            query = query.where(Kisi.ISTEN_CIKIS_T.is_not(None))
+        else:
+            query = query.where(Kisi.ISTEN_CIKIS_T.is_(None))
+
+    # Toplam kayıt sayısını al (filtreye göre)
+    count_statement = select(func.count()).select_from(query.subquery())
+    total = session.exec(count_statement).one()
+
+    # Sayfalama uygula
+    items = session.exec(query.offset((page - 1) * size).limit(size)).all()
+
+    total_pages = ceil(total / size) if size > 0 else 0
+
+    return Pagination[Kisi](
+        data=items,
+        total=total,
+        page=page,
+        size=size,
+        total_pages=total_pages
+    )
 
 
-# 🚀 ID'ye göre kişi çekme
-def get_kisi_by_id(session: Session, kimlik_no: int) -> Optional[Kisi]:
+def get_kisi(session: Session, kimlik_no: int):
     return session.get(Kisi, kimlik_no)
 
 
-# 🚀 Tüm kişileri listeleme (aktif filtreli + skip/limit destekli)
-def list_kisiler(
-        session: Session,
-        skip: int = 0,
-        limit: int = 100,
-        is_active: Optional[int] = None,
-        kimlik_no: Optional[int] = None,
-        adi: Optional[str] = None,
-        soyadi: Optional[str] = None,
-        cep_tel: Optional[str] = None,
-
-) -> List[Kisi]:
-    statement = select(Kisi)
-
-    if is_active is not None:
-        statement = statement.where(Kisi.is_active == is_active)
-    if kimlik_no is not None:
-        statement = statement.where(Kisi.kimlik_no == kimlik_no)
-    if adi:
-        statement = statement.where(Kisi.adi.contains(adi))
-    if soyadi:
-        statement = statement.where(Kisi.soyadi.contains(soyadi))
-    if cep_tel:
-        statement = statement.where(Kisi.cep_tel.contains(cep_tel))
-
-    statement = statement.offset(skip).limit(limit)
-
-    kisiler = session.exec(statement).all()
-    return kisiler
+def get_kisiler(session: Session, skip: int = 0, limit: int = 100):
+    return session.exec(select(Kisi).offset(skip).limit(limit)).all()
 
 
-# 🚀 Kişi güncelleme
-def update_kisi(session: Session, kimlik_no: int, kisi_in: KisiUpdate) -> Optional[Kisi]:
-    kisi = session.get(Kisi, kimlik_no)
-    if not kisi:
+def create_kisi(session: Session, kisi: KisiCreate):
+    db_kisi = Kisi.model_validate(kisi)
+    session.add(db_kisi)
+    session.commit()
+    session.refresh(db_kisi)
+    return db_kisi
+
+
+def update_kisi(session: Session, kimlik_no: int, kisi: KisiUpdate):
+    db_kisi = session.get(Kisi, kimlik_no)
+    if not db_kisi:
         return None
-
-    kisi_data = kisi_in.model_dump(exclude_unset=True)
+    kisi_data = kisi.model_dump(exclude_unset=True)
     for key, value in kisi_data.items():
-        setattr(kisi, key, value)
-
-    session.add(kisi)
+        setattr(db_kisi, key, value)
     session.commit()
-    session.refresh(kisi)
-    return kisi
+    session.refresh(db_kisi)
+    return db_kisi
 
 
-# 🚀 Kişi soft delete (aktif = 0 yap)
-def delete_kisi(session: Session, kimlik_no: int) -> Optional[Kisi]:
-    kisi = session.get(Kisi, kimlik_no)
-    if not kisi:
+def delete_kisi(session: Session, kimlik_no: int):
+    db_kisi = session.get(Kisi, kimlik_no)
+    if not db_kisi:
         return None
-
-    kisi.is_active = 0
-    session.add(kisi)
+    session.delete(db_kisi)
     session.commit()
-    session.refresh(kisi)
-    return kisi
+    return {"message": "Kişi başarıyla silindi."}

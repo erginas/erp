@@ -1,39 +1,96 @@
-from datetime import date
-from typing import Optional
+# models.py
 
-from sqlmodel import SQLModel, Field
+from datetime import date, datetime
+from typing import Optional, List
+
+from sqlmodel import SQLModel, Field, Relationship
+
+from app.api.modules.kisiler.fields import KisiFields
 
 
-class Kisi(SQLModel, table=True):
-    kimlik_no: Optional[int] = Field(default=None, primary_key=True)
-    adi: Optional[str] = Field(default=None, max_length=80)
-    soyadi: Optional[str] = Field(default=None, max_length=80)
-    baba_adi: Optional[str] = Field(default=None, max_length=80)
-    ana_adi: Optional[str] = Field(default=None, max_length=80)
-    meslegi: Optional[str] = Field(default=None, max_length=80)
-    dogum_yeri: Optional[str] = Field(default=None, max_length=80)
-    dogum_tarihi: Optional[date] = Field(default=None)
-    kan_grubu: Optional[str] = Field(default=None, max_length=10)
-    cinsiyeti: Optional[str] = Field(default=None, max_length=1)
-    medeni_hali: Optional[str] = Field(default=None, max_length=10)
-    ev_tel: Optional[str] = Field(default=None, max_length=50)
-    cep_tel: Optional[str] = Field(default=None, max_length=50)
-    is_tel: Optional[str] = Field(default=None, max_length=50)
-    adres: Optional[str] = Field(default=None, max_length=255)
-    ilgili_sirket: Optional[str] = Field(default=None, max_length=5)
-    ise_giris_tarihi: Optional[date] = Field(default=None)
-    isten_cikis_t: Optional[date] = Field(default=None)
-    vergi_dairesi: Optional[str] = Field(default=None, max_length=120)
-    vergi_no: Optional[str] = Field(default=None, max_length=20)
-    birim_no: Optional[int] = Field(default=None)
-    gorevi: Optional[str] = Field(default=None, max_length=80)
-    mesai_fl: Optional[str] = Field(default=None, max_length=1)
-    aciklama: Optional[str] = Field(default=None, max_length=1024)
-    gorev_kodu: Optional[int] = Field(default=None)
-    egitim_durumu: Optional[str] = Field(default=None, max_length=80)
-    takma_ad: Optional[str] = Field(default=None, max_length=80)
-    sifre: Optional[str] = Field(default=None, max_length=255)
-    ayakkabi_no: Optional[str] = Field(default=None, max_length=10)
-    ust_beden: Optional[str] = Field(default=None, max_length=10)
-    alt_beden: Optional[str] = Field(default=None, max_length=10)
-    is_active: Optional[int] = Field(default=1)  # 1: aktif, 0: pasif
+# models.py
+
+
+class OrganizasyonBirim(SQLModel, table=True):
+    __tablename__ = "ORGANIZASYON_BIRIMI"
+    __table_args__ = {"schema": "MGP"}
+
+    BIRIM_NO: int = Field(primary_key=True)
+    BAGIMLI_BIRIM: Optional[int] = Field(default=None, foreign_key="MGP.ORGANIZASYON_BIRIMI.BIRIM_NO")
+    KISA_KOD: Optional[str] = Field(default=None, max_length=5)
+    ADI: Optional[str] = Field(default=None, max_length=25)
+    KIMLIK_NO: Optional[int] = Field(default=None, foreign_key="MGP.KISI.KIMLIK_NO")
+    IPTAL_T: Optional[date] = None
+    IPTAL_NEDENI: Optional[str] = Field(default=None, max_length=4000)
+    CESIDI: Optional[str] = Field(default=None, max_length=1)
+    GIZLI: Optional[int] = Field(default=None, ge=0, le=1)
+    AKTIF: Optional[int] = Field(default=None, ge=0, le=1)
+
+    # Audit Alanları
+    EKLEYEN_KULLANICI_KIMLIK_NO: Optional[int] = Field(default=None)
+    ENSONGUNCELLEYEN_KULLANICI_KIMLIK_NO: Optional[int] = Field(default=None)
+    EKLENME_ZAMANI: Optional[datetime] = None
+    ENSON_GUNCELLENME_ZAMANI: Optional[datetime] = None
+    MAC_ADDRESS: Optional[str] = Field(default=None, max_length=48)
+    GUNCELLEYEN_MAC_ADDRESS: Optional[str] = Field(default=None, max_length=48)
+
+    # Self-referans ilişki (Parent-Child)
+    ust_birim: Optional["OrganizasyonBirim"] = Relationship(
+        sa_relationship_kwargs={
+            "foreign_keys": "OrganizasyonBirim.BAGIMLI_BIRIM",
+            "remote_side": "OrganizasyonBirim.BIRIM_NO",
+            "uselist": False,
+            "viewonly": False,
+        }
+    )
+
+    alt_birimler: List["OrganizasyonBirim"] = Relationship(
+        sa_relationship_kwargs={
+            "foreign_keys": "OrganizasyonBirim.BAGIMLI_BIRIM",
+            "primaryjoin": "OrganizasyonBirim.BAGIMLI_BIRIM == OrganizasyonBirim.BIRIM_NO",
+            "uselist": True,
+            "viewonly": False,
+        },
+        back_populates="ust_birim"
+    )
+
+    # OrganizasyonBirim'e ekle:
+    personeller: List["Kisi"] = Relationship(
+        back_populates="birim",
+        sa_relationship_kwargs={
+            "foreign_keys": "Kisi.BIRIM_NO",
+            "primaryjoin": "OrganizasyonBirim.BIRIM_NO == Kisi.BIRIM_NO"
+        }
+    )
+
+    gorevdeki_kisiler: List["Kisi"] = Relationship(
+        back_populates="gorev_birimi",
+        sa_relationship_kwargs={
+            "foreign_keys": "Kisi.GOREV_KODU",
+            "primaryjoin": "OrganizasyonBirim.BIRIM_NO == Kisi.GOREV_KODU"
+        }
+    )
+
+
+class Kisi(KisiFields, SQLModel, table=True):
+    __tablename__ = "KISI"
+    __table_args__ = {"schema": "MGP"}
+
+    KIMLIK_NO: int = Field(primary_key=True)
+
+    # İlişkiler
+    birim: Optional["OrganizasyonBirim"] = Relationship(
+        sa_relationship_kwargs={
+            "foreign_keys": "Kisi.BIRIM_NO",
+            "primaryjoin": "Kisi.BIRIM_NO == OrganizasyonBirim.BIRIM_NO",
+        },
+        back_populates="personeller"
+    )
+
+    gorev_birimi: Optional["OrganizasyonBirim"] = Relationship(
+        sa_relationship_kwargs={
+            "foreign_keys": "Kisi.GOREV_KODU",
+            "primaryjoin": "Kisi.GOREV_KODU == OrganizasyonBirim.BIRIM_NO",
+        },
+        back_populates="gorevdeki_kisiler"
+    )
