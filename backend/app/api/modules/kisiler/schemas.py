@@ -57,8 +57,16 @@ class KisiFilter(BaseModel):
     adi: Optional[str] = None
     soyadi: Optional[str] = None
     kimlik_no: Optional[int] = None
-    birim_no: Optional[int] = None
-    isten_cikis_t: Optional[bool] = None  # True = ayrıldı, False = hala çalışıyor
+    birim_adi: Optional[str] = None  # 👈 Burayı ekliyoruz
+    isten_cikis_t: Optional[bool] = None  # ✅ Bu alan eksikse veya yanlış tanımlıysa çalışmaz
+    filter_type: Optional[str] = None
+    unit_name: Optional[str] = None
+    unit: Optional[str] = None
+    dogum_tarihi: Optional[str] = None
+    izin_donus_zamani: Optional[str] = None  # "bugun", "yarin", "haftaya"
+    izin_baslangic: Optional[date] = None
+    izin_bitis: Optional[date] = None
+    dogum_gunu_gelecek_gun: Optional[int] = None  # örn: 7
 
 
 class Pagination(BaseModel, Generic[T]):

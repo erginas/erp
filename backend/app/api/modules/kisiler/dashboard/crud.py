@@ -1,13 +1,14 @@
 ## Response Modelleri
-from datetime import date, timedelta
+import json
+from datetime import date
 from typing import Dict, List
 
-from pydantic import BaseModel, json
+from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Session
 
 
-class PersonelBase(BaseModel):
+class KisiBase(BaseModel):
     id: int
     adi: str
     soyadi: str
@@ -19,19 +20,17 @@ class BirimStats(BaseModel):
 
 
 class DashboardResponse(BaseModel):
-    toplam_personel: int
-    aktif_personel: int
-    ayrilan_personel: int
+    toplam_kisi: int
+    aktif_kisi: int
+    ayrilan_kisi: int
     birimler: Dict[str, BirimStats]
-    dogum_gunu_olanlar: List[PersonelBase]
-    emeklilik_adaylari: List[PersonelBase]
-    izin_donenler: Dict[str, List[PersonelBase]]
-    kan_grubu_dagilimi: Dict[str, int]
+    dogum_gunu_olanlar: List[KisiBase]
+    izin_donenler: Dict[str, List[KisiBase]]
 
 
 def get_dashboard_data(db: Session) -> DashboardResponse:
     today = date.today()
-    emeklilik_siniri = today - timedelta(days=29 * 365)
+    # emeklilik_siniri = today - timedelta(days=29 * 365)
 
     # TEK OPTİMİZE SORGUMUZ
     query = text("""
@@ -41,12 +40,12 @@ def get_dashboard_data(db: Session) -> DashboardResponse:
       p.id,
       p.adi,
       p.soyadi,
-      p.birim_id,
-      p.kan_grubu_id,
-      p.cikis_tarihi,
+      p.BIRIM_NO,
+      p.KAN_GRUBU,
+      p.ISTEN_CIKIS_T ,
       p.dogum_tarihi,
-      p.memuriyete_giris_tarihi
-    FROM personel p
+      p.ISE_GIRIS_TARIHI
+    FROM kisi p
   ),
   i_data AS (
     SELECT /*+ PARALLEL(pi,4) */
@@ -59,36 +58,25 @@ def get_dashboard_data(db: Session) -> DashboardResponse:
   personel_stats AS (
     SELECT
       COUNT(*)                                              AS toplam,
-      SUM(CASE WHEN cikis_tarihi IS NULL THEN 1 ELSE 0 END)  AS aktif,
-      SUM(CASE WHEN cikis_tarihi IS NOT NULL THEN 1 ELSE 0 END) AS ayrilan
+      SUM(CASE WHEN ISTEN_CIKIS_T IS NULL THEN 1 ELSE 0 END)  AS aktif,
+      SUM(CASE WHEN ISTEN_CIKIS_T IS NOT NULL THEN 1 ELSE 0 END) AS ayrilan
     FROM p_data
   ),
   birim_stats AS (
     SELECT
       b.adi AS birim_adi,
-      SUM(CASE WHEN p.cikis_tarihi IS NULL THEN 1 ELSE 0 END)     AS aktif,
-      SUM(CASE WHEN p.cikis_tarihi IS NOT NULL THEN 1 ELSE 0 END) AS ayrilan
+      SUM(CASE WHEN p.ISTEN_CIKIS_T IS NULL THEN 1 ELSE 0 END)     AS aktif,
+      SUM(CASE WHEN p.ISTEN_CIKIS_T IS NOT NULL THEN 1 ELSE 0 END) AS ayrilan
     FROM p_data p
     LEFT JOIN organizasyon_birimi b
-      ON p.birim_id = b.birim_no
+      ON p.birim_no = b.birim_no
     GROUP BY b.adi
-  ),
-  kan_grubu AS (
-    SELECT
-      k.adi   AS kan_grubu,
-      COUNT(*) AS sayi
-    FROM p_data p
-    JOIN pnts_kod k
-      ON p.kan_grubu_id = k.kodu
-     AND k.turu = 'KANGRUBU'
-    WHERE p.cikis_tarihi IS NULL
-    GROUP BY k.adi
   )
 SELECT
   -- A) Toplam, aktif, ayrılan personel
-  ps.toplam           AS toplam_personel,
-  ps.aktif            AS aktif_personel,
-  ps.ayrilan          AS ayrilan_personel,
+  ps.toplam           AS toplam_kisi,
+  ps.aktif            AS aktif_kisi,
+  ps.ayrilan          AS ayrilan_kisi,
   -- B) Birim dağılımı JSON
   (
     SELECT
@@ -119,26 +107,8 @@ SELECT
          )
       || ']'
     FROM p_data d
-    WHERE TO_CHAR(d.dogum_tarihi,'MM-DD') = TO_CHAR(:today,'MM-DD') and d.cikis_tarihi is null
+    WHERE TO_CHAR(d.dogum_tarihi,'MM-DD') = TO_CHAR(:today,'MM-DD') and d.ISTEN_CIKIS_T is null
   ) AS dogum_gunu_olanlar,
-  -- D) Emeklilik adayları
-  (
-    SELECT
-      '['
-      || NVL(
-           LISTAGG(
-             '{"id":'||e.id
-             ||',"adi":"'    ||REPLACE(e.adi,'"','\"')
-             ||'","soyadi":"'||REPLACE(e.soyadi,'"','\"')
-             ||'"}'
-           , ',')
-           WITHIN GROUP (ORDER BY e.id)
-         , ''
-         )
-      || ']'
-    FROM p_data e
-    WHERE e.memuriyete_giris_tarihi <= :emeklilik_siniri
-  ) AS emeklilik_adaylari,
   -- E) İzin dönenler: BUGÜN, YARIN, HAFTAYA
   (
     SELECT
@@ -211,47 +181,28 @@ SELECT
          )
       || '}'
     FROM dual
-  ) AS izin_donenler,
-  -- F) Kan grubu dağılımı JSON
-  (
-    SELECT
-      '{'
-      || NVL(
-           LISTAGG(
-             '"'||kg.kan_grubu||'":'||kg.sayi
-           , ',')
-           WITHIN GROUP (ORDER BY kg.kan_grubu)
-         , ''
-         )
-      || '}'
-    FROM kan_grubu kg
-  ) AS kan_grubu_dagilimi
+  ) AS izin_donenler
 FROM personel_stats ps
     """)
 
     result = db.execute(query, {
-        'today': today,
-        'emeklilik_siniri': emeklilik_siniri
+        'today': today
     }).one()
 
     # — parse JSON strings into Python objects —
     birimler = json.loads(result.birimler or "{}")
     dogum_gunu = json.loads(result.dogum_gunu_olanlar or "[]")
-    emeklilik = json.loads(result.emeklilik_adaylari or "[]")
     izin = json.loads(result.izin_donenler or "{}")
-    kan_grubu = json.loads(result.kan_grubu_dagilimi or "{}")
 
     # JSON verilerini Python dict'e çevirme
     return DashboardResponse(
-        toplam_personel=result.toplam_personel,
-        aktif_personel=result.aktif_personel,
-        ayrilan_personel=result.ayrilan_personel,
+        toplam_kisi=result.toplam_kisi,
+        aktif_kisi=result.aktif_kisi,
+        ayrilan_kisi=result.ayrilan_kisi,
         birimler={k: BirimStats(**v) for k, v in birimler.items()},
-        dogum_gunu_olanlar=[PersonelBase(**p) for p in dogum_gunu],
-        emeklilik_adaylari=[PersonelBase(**p) for p in emeklilik],
+        dogum_gunu_olanlar=[KisiBase(**p) for p in dogum_gunu],
         izin_donenler={
-            key: [PersonelBase(**p) for p in lst]
+            key: [KisiBase(**p) for p in lst]
             for key, lst in izin.items()
         },
-        kan_grubu_dagilimi=kan_grubu
     )
