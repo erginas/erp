@@ -18,6 +18,7 @@ ZK_PORT = 4370
 class HybridZKToOracle:
     def __init__(self):
         self.last_record_time = datetime.now()
+        self.user_map = {}  # Kullanıcı bilgilerini saklamak için
 
     def connect_oracle(self):
         """Oracle veritabanına bağlantı kur"""
@@ -47,14 +48,21 @@ class HybridZKToOracle:
             saat_ondalik = round(tarih.hour + tarih.minute / 60.0, 2)
             saat_oracle = f"TO_TIMESTAMP('30/12/1899 {saat_str}:00,000000','DD/MM/YYYY HH24:MI:SS,FF')"
 
+            # Kullanıcı bilgilerini al
+            user_info = self.user_map.get(attendance.user_id, {})
+            card_number = user_info.get('card', '')
+            user_name = user_info.get('name', 'Bilinmiyor')
+
             return {
-                'sicilno': sicilno,
+                'PDKS_USER_NO': sicilno,
                 'tarih': tarih_oracle,
                 'caltur_kodu': 2,
                 'saatnumber': saatnumber,
                 'saat': saat_oracle,
                 'saatondalik': saat_ondalik,
-                'saatstring': saat_str
+                'saatstring': saat_str,
+                'CARD_NUMBER': card_number,
+                'USER_NAME': user_name
             }
         except Exception as e:
             print(f"Kayıt formatlanırken hata: {e}")
@@ -63,27 +71,56 @@ class HybridZKToOracle:
     def insert_to_oracle(self, record_data):
         """Oracle'a kayıt ekle"""
         try:
-            cursor = self.ora_conn.cursor()
+            # cursor = self.ora_conn.cursor()
+            # sql = ""
+            # sql = f"""
+            # INSERT INTO MGP.PDKS_GP (
+            #     PDKS_USER_NO, TARIH, CALTURKODU,
+            #     SAATNUMBER, SAAT, SAATONDALIK,
+            #     SAATSTRING, PDKS_KART_NO, USER_NAME
+            # ) VALUES (
+            #     '{record_data['PDKS_USER_NO']}',
+            #     {record_data['tarih']},
+            #     {record_data['caltur_kodu']},
+            #     {record_data['saatnumber']},
+            #     {record_data['saat']},
+            #     {record_data['saatondalik']},
+            #     '{record_data['saatstring']}',
+            #     '{record_data['CARD_NUMBER']}',
+            #     '{record_data['USER_NAME']}'
+            # )
+            # """
 
-            sql = f"""
-            INSERT INTO MGP.PDKS_GP (
-                SICILNO, TARIH, CALTURKODU, 
-                SAATNUMBER, SAAT, SAATONDALIK, 
-                SAATSTRING
-            ) VALUES (
-                '{record_data['sicilno']}', {record_data['tarih']}, {record_data['caltur_kodu']},
-                {record_data['saatnumber']}, {record_data['saat']}, {record_data['saatondalik']},
-                '{record_data['saatstring']}'
-            )
-            """
-
-            cursor.execute(sql)
-            self.ora_conn.commit()
-            print(f"Kayıt eklendi: {record_data['sicilno']} - {record_data['saatstring']}")
+            # cursor.execute(sql)
+            # self.ora_conn.commit()
+            print(
+                f"Kayıt eklendi: {record_data['PDKS_USER_NO']} - {record_data['USER_NAME']} - {record_data['saatstring']} - Kart: {record_data['CARD_NUMBER']}")
             return True
         except Exception as e:
             print(f"Oracle'a kayıt eklenirken hata: {e}")
             self.ora_conn.rollback()
+            return False
+
+    def load_users_from_device(self, conn):
+        """Terminal cihazından kullanıcı bilgilerini yükle"""
+        try:
+            users = conn.get_users()
+            self.user_map.clear()  # Önceki verileri temizle
+
+            for user in users:
+                self.user_map[user.user_id] = {
+                    'uid': user.uid,
+                    'name': user.name,
+                    'privilege': user.privilege,
+                    'card': user.card,
+                    'group_id': user.group_id
+                }
+                print(f"Kullanıcı yüklendi: {user.user_id} - {user.name} - Kart No: {user.card}")
+
+            print(f"Toplam {len(self.user_map)} kullanıcı yüklendi.")
+            return True
+        except Exception as e:
+            print(f"Kullanıcı bilgileri yüklenirken hata: {e}")
             return False
 
     def run_live_capture(self):
@@ -94,6 +131,10 @@ class HybridZKToOracle:
             conn = zk.connect()
             print("Canlı veri yakalama başlatıldı...")
 
+            # Kullanıcı bilgilerini yükle
+            self.load_users_from_device(conn)
+
+            # Canlı veri yakalama
             for attendance in conn.live_capture():
                 if attendance:
                     print(f"Yeni kayıt yakalandı: {attendance}")
@@ -116,6 +157,9 @@ class HybridZKToOracle:
                 # Her 60 saniyede bir bağlantı kurup yeni kayıtları kontrol et
                 zk = ZK(ZK_IP, port=ZK_PORT)
                 with zk.connect() as conn:
+                    # Her seferinde kullanıcı bilgilerini güncelle
+                    self.load_users_from_device(conn)
+
                     attendances = conn.get_attendance()
                     new_records = [
                         a for a in attendances

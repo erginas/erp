@@ -17,6 +17,8 @@ try:
             pass
         else:
             print(attendance)
+            print(attendance.user_id)
+            print(attendance.uid)
 except Exception as e:
     print("Process terminate : {}".format(e))
 finally:

@@ -21,6 +21,7 @@ try:
         print('  Password   : {}'.format(user.password))
         print('  Group ID   : {}'.format(user.group_id))
         print('  User  ID   : {}'.format(user.user_id))
+        print('  Card Number   : {}'.format(user.card))
 
     print("Voice Test ...")
     str(attendance).split()
