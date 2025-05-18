@@ -200,7 +200,7 @@ def sync_users(conn, db_conn, selected_ids=None):
 
                 # Kullanıcıyı güncelle
                 conn.set_user(
-                    # uid=int(pdks_user_no),  # uid integer olmalı
+                    uid=int(pdks_user_no),  # uid integer olmalı
                     name=formatted_name,
                     privilege=const.USER_DEFAULT,
                     card=kart_no,

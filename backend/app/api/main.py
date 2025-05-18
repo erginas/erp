@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.modules.kisiler.dashboard.enpoints import router as kisiler_dashboard_router
 from app.api.modules.kisiler.endpoints import router as kisiler_router
 from app.api.modules.kisiler.izin.izin_dashboard import router as kisi_izin_router
+from app.api.modules.pdks_api.endpoints import router as pdks_router
 # personel routers
 # from app.api.modules.personel.dashboard_endpoints import router as personel_dashboard_router
 # from app.api.modules.personel.endpoints import router as personel_router
@@ -16,6 +17,7 @@ from app.core.config import settings
 api_router = APIRouter()
 api_router.include_router(login.router)
 api_router.include_router(user_router)
+api_router.include_router(pdks_router)
 
 api_router.include_router(webmenu_endpoints)
 api_router.include_router(utils.router)

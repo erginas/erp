@@ -47,8 +47,6 @@ class HybridZKToOracle:
             saat_str = f"{tarih.hour:02d}:{tarih.minute:02d}"
             saat_ondalik = round(tarih.hour + tarih.minute / 60.0, 2)
             saat_oracle = f"TO_TIMESTAMP('30/12/1899 {saat_str}:00,000000','DD/MM/YYYY HH24:MI:SS,FF')"
-            olay_tipi = int(attendance.status)  # 0=Giriş, 1=Çıkış
-            processed = 'Y'
 
             # Kullanıcı bilgilerini al
             user_info = self.user_map.get(attendance.user_id, {})
@@ -64,9 +62,7 @@ class HybridZKToOracle:
                 'saatondalik': saat_ondalik,
                 'saatstring': saat_str,
                 'CARD_NUMBER': card_number,
-                'USER_NAME': user_name,
-                'OLAY_TIPI': olay_tipi,
-                'PROCESSED': processed
+                'USER_NAME': user_name
             }
         except Exception as e:
             print(f"Kayıt formatlanırken hata: {e}")
@@ -76,27 +72,25 @@ class HybridZKToOracle:
         """Oracle'a kayıt ekle"""
         try:
             # cursor = self.ora_conn.cursor()
+            sql = ""
             # sql = f"""
-            #     INSERT INTO MGP.PDKS_GP (
-            #       PDKS_USER_NO, TARIH, CALTURKODU,
-            #       SAATNUMBER, SAAT, SAATONDALIK,
-            #       SAATSTRING, PDKS_KART_NO, USER_NAME,
-            #       OLAY_TIPI,PROCESSED
-            #     ) VALUES (
-            #       '{record_data['PDKS_USER_NO']}',
-            #       {record_data['tarih']},
-            #       {record_data['caltur_kodu']},
-            #       {record_data['saatnumber']},
-            #       {record_data['saat']},
-            #       {record_data['saatondalik']},
-            #       '{record_data['saatstring']}',
-            #       '{record_data['CARD_NUMBER']}',
-            #       '{record_data['USER_NAME']}',
-            #       {record_data['OLAY_TIPI']},
-            #       {record_data['PROCESSED']}
-            #   )
-            #   """
-            #
+            # INSERT INTO MGP.PDKS_GP (
+            #     PDKS_USER_NO, TARIH, CALTURKODU,
+            #     SAATNUMBER, SAAT, SAATONDALIK,
+            #     SAATSTRING, PDKS_KART_NO, USER_NAME
+            # ) VALUES (
+            #     '{record_data['PDKS_USER_NO']}',
+            #     {record_data['tarih']},
+            #     {record_data['caltur_kodu']},
+            #     {record_data['saatnumber']},
+            #     {record_data['saat']},
+            #     {record_data['saatondalik']},
+            #     '{record_data['saatstring']}',
+            #     '{record_data['CARD_NUMBER']}',
+            #     '{record_data['USER_NAME']}'
+            # )
+            # """
+
             # cursor.execute(sql)
             # self.ora_conn.commit()
             print(
